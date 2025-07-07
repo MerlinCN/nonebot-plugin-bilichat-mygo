@@ -88,7 +88,7 @@ class VideoImage:
         uploaders: list[UP],
         b23_url: str,
         aid: str,
-        desc: str|None = None,
+        desc: str | None = None,
     ):
         self.cover: BytesIO = cover if isinstance(cover, BytesIO) else BytesIO(cover)
         """视频封面"""
@@ -172,25 +172,25 @@ class VideoImage:
     @staticmethod
     def get_up_level_code(level: int):
         if level == 0:
-            up_level = "\uE6CB"
+            up_level = "\ue6cb"
             level_color = (191, 191, 191)
         elif level == 1:
-            up_level = "\uE6CC"
+            up_level = "\ue6cc"
             level_color = (191, 191, 191)
         elif level == 2:
-            up_level = "\uE6CD"
+            up_level = "\ue6cd"
             level_color = (149, 221, 178)
         elif level == 3:
-            up_level = "\uE6CE"
+            up_level = "\ue6ce"
             level_color = (146, 209, 229)
         elif level == 4:
-            up_level = "\uE6CF"
+            up_level = "\ue6cf"
             level_color = (255, 179, 124)
         elif level == 5:
-            up_level = "\uE6D0"
+            up_level = "\ue6d0"
             level_color = (255, 108, 0)
         else:
-            up_level = "\uE6D1"
+            up_level = "\ue6d1"
             level_color = (255, 0, 0)
         return up_level, level_color
 

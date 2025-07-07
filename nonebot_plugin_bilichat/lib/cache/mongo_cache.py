@@ -4,7 +4,7 @@ from pydantic import Field
 from .cache import BaseCache
 
 
-class MongoCache(Document,BaseCache):
+class MongoCache(Document, BaseCache):
     id: str = Field(default_factory=str, alias="_id")
 
     class Settings:

@@ -34,7 +34,7 @@ async def _handle_dynamic(up: Uploader, dyn: Dynamic):
         up_name = dyn.raw_grpc.modules[0].module_author.author.name.strip()
         if up.nickname != up_name and up_name:
             await up.fix_nickname()
-    
+
     if dyn.dynamic_type in DYNAMIC_TYPE_IGNORE:
         return
 

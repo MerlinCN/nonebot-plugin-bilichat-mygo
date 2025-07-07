@@ -1,7 +1,7 @@
 from typing import Literal, Type, TypeVar
 
 from nonebot.adapters.onebot.v11 import Adapter
-from nonebot.adapters.onebot.v11.event import Event, GroupMessageEvent, PrivateMessageEvent
+from nonebot.adapters.onebot.v11.event import Event, GroupMessageEvent
 from nonebot.log import logger
 from nonebot.typing import overrides
 
@@ -29,8 +29,8 @@ class GroupMessageSentEvent(GroupMessageEvent):
         return "message"
 
 
-#@register_event
-#class PrivateMessageSentEvent(PrivateMessageEvent):
+# @register_event
+# class PrivateMessageSentEvent(PrivateMessageEvent):
 #    """私聊消息里自己发送的消息"""
 #
 #    post_type: Literal["message_sent"]

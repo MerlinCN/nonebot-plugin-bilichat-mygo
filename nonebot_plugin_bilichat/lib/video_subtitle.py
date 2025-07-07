@@ -10,7 +10,7 @@ from .bcut_asr import BcutASR
 from .bilibili_request import get_player, grpc_get_playview, hc
 
 
-async def get_subtitle_url(aid: int, cid: int) -> str|None:
+async def get_subtitle_url(aid: int, cid: int) -> str | None:
     video_player = await get_player(aid, cid)
     subtitles_raw: list[dict] = video_player["subtitle"]["subtitles"]
     logger.debug(subtitles_raw)
@@ -73,7 +73,7 @@ async def get_subtitle(aid: int, cid: int) -> list[str]:
                 return [x.transcript for x in asr]
             except (httpx.ReadTimeout, httpx.WriteTimeout):
                 logger.error(
-                    f"except network error, retry count remaining {plugin_config.bilichat_neterror_retry-count-1}"
+                    f"except network error, retry count remaining {plugin_config.bilichat_neterror_retry - count - 1}"
                 )
                 await asyncio.sleep(5)
             except Exception as e:

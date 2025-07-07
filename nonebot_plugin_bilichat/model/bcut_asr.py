@@ -9,6 +9,7 @@ class ASRDataSeg(BaseModel):
 
     class ASRDataWords(BaseModel):
         "文字识别-逐字"
+
         label: str | None
         start_time: int | None
         end_time: int | None
@@ -42,6 +43,7 @@ class ASRDataSeg(BaseModel):
 
 class ASRData(BaseModel):
     "语音识别结果"
+
     utterances: list[ASRDataSeg]
     version: str
 
@@ -70,6 +72,7 @@ class ASRData(BaseModel):
 
 class ResourceCreateRspSchema(BaseModel):
     "上传申请响应"
+
     resource_id: str
     title: str
     type: int
@@ -82,12 +85,14 @@ class ResourceCreateRspSchema(BaseModel):
 
 class ResourceCompleteRspSchema(BaseModel):
     "上传提交响应"
+
     resource_id: str
     download_url: str
 
 
 class TaskCreateRspSchema(BaseModel):
     "任务创建响应"
+
     resource: str
     result: str
     task_id: str  # 任务id
@@ -95,6 +100,7 @@ class TaskCreateRspSchema(BaseModel):
 
 class ResultStateEnum(Enum):
     "任务状态枚举"
+
     STOP = 0  # 未开始
     RUNING = 1  # 运行中
     ERROR = 3  # 错误
@@ -103,6 +109,7 @@ class ResultStateEnum(Enum):
 
 class ResultRspSchema(BaseModel):
     "任务结果查询响应"
+
     task_id: str  # 任务id
     result: str  # 结果数据-json
     remark: str  # 任务状态详情

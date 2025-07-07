@@ -49,5 +49,9 @@ async def get_supported_platform() -> Response[list[dict[str, str]]]:
                 "value": SupportedPlatform.qq_guild_channel,
                 "label": "QQ频道",
             },
+            {
+                "value": SupportedPlatform.qq_private,
+                "label": "QQ私聊",
+            },
         ]
     )

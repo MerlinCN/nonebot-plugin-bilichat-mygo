@@ -37,6 +37,7 @@ class APIError(Exception):
 
 class BcutASR:
     "必剪 语音识别接口"
+
     session: httpx.AsyncClient
     sound_name: str
     sound_bin: bytes

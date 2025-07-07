@@ -1,4 +1,3 @@
-import asyncio
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
@@ -28,6 +27,7 @@ def check_font_path(font: str, url: URL):
             return font_path.joinpath(font)
     return None
 
+
 async def get_font_async(font: str = DEFAULT_DYNAMIC_FONT):
     logger.debug(f"Loading font: {font}")
     url = URL(font)
@@ -47,6 +47,7 @@ async def get_font_async(font: str = DEFAULT_DYNAMIC_FONT):
         else:
             raise FileNotFoundError(f"Font {font} does not exist")
 
+
 def get_font_sync(font: str = DEFAULT_DYNAMIC_FONT):
     logger.debug(f"Loading font: {font}")
     url = URL(font)
@@ -65,9 +66,6 @@ def get_font_sync(font: str = DEFAULT_DYNAMIC_FONT):
                 return font_path.joinpath(url.name)
         else:
             raise FileNotFoundError(f"Font {font} does not exist")
-
-
-
 
 
 def font_init():

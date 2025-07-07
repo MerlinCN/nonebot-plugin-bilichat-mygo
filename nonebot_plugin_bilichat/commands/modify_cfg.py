@@ -15,7 +15,7 @@ bili_modify_cfg = bilichat.command("cfg", permission=SUPERUSER, aliases=set(plug
 async def show_cfg_value():
     text = "\n".join(
         [
-            f"{v}: {getattr(SubscriptionSystem.config,k) if 'rss' not in k else '**敏感信息，请通过webui查看**'}"
+            f"{v}: {getattr(SubscriptionSystem.config, k) if 'rss' not in k else '**敏感信息，请通过webui查看**'}"
             for k, v in SUBS_CONFIG_NAME_MAPPING.items()
         ]
     )

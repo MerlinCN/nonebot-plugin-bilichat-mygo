@@ -71,19 +71,19 @@ def bbot_default(video_info: VideoImage):
     info_bg = Image.new("RGB", (560, 170), "#F5F5F7")
     draw = ImageDraw.Draw(info_bg)
     ## 点赞
-    draw.text((5 + 10, 20), "\uE6E0", icon_color, icon_font)
+    draw.text((5 + 10, 20), "\ue6e0", icon_color, icon_font)
     draw.text((5 + 64, 27), video_info.like, "#474747", info_font)
     ## 投币
-    draw.text((5 + 10 + 180, 20), "\uE6E4", icon_color, icon_font)
+    draw.text((5 + 10 + 180, 20), "\ue6e4", icon_color, icon_font)
     draw.text((5 + 64 + 180, 27), video_info.coin, "#474747", info_font)
     ## 收藏
-    draw.text((5 + 10 + 180 + 180, 20), "\uE6E1", icon_color, icon_font)
+    draw.text((5 + 10 + 180 + 180, 20), "\ue6e1", icon_color, icon_font)
     draw.text((5 + 64 + 180 + 180, 27), video_info.favorite, "#474747", info_font)
     ## 播放
-    draw.text((5 + 100, 93), "\uE6E6", icon_color, icon_font)
+    draw.text((5 + 100, 93), "\ue6e6", icon_color, icon_font)
     draw.text((5 + 154, 100), video_info.view, "#474747", info_font)
     ## 弹幕
-    draw.text((5 + 100 + 210, 93), "\uE6E7", icon_color, icon_font)
+    draw.text((5 + 100 + 210, 93), "\ue6e7", icon_color, icon_font)
     draw.text((5 + 154 + 210, 100), video_info.danmaku, "#474747", info_font)
     #
     info_bg_y = info_bg.size[1]
@@ -151,7 +151,7 @@ def bbot_default(video_info: VideoImage):
     # Logo
     # LOGO \uE725
     logo_font = ImageFont.truetype(font_vanfont, 100)
-    draw.text((300, 28), "\uE725", "#F5F5F7", logo_font)
+    draw.text((300, 28), "\ue725", "#F5F5F7", logo_font)
     bg_y += 170
 
     # === 汇总 ===
