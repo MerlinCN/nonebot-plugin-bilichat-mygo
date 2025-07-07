@@ -11,6 +11,7 @@ async def grpc_get_playview(aid: int, cid: int, **kwargs) -> PlayViewReply:
     req = PlayViewReq(aid=aid, cid=cid, qn=128, fnval=464)
     return await stub.PlayView(req, **kwargs)
 
+
 @grpc_request
 async def grpc_get_view_info(aid: int = 0, bvid: str = "", **kwargs) -> ViewReply:
     stub = ViewStub(kwargs.pop("_channel"))

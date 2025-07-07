@@ -18,82 +18,146 @@ except Exception:
 
 class Config(BaseModel):
     # general
-    bilichat_block: bool = False
-    bilichat_enable_self: bool = False
-    bilichat_only_self: bool = False
-    bilichat_only_to_me: bool = False
-    bilichat_whitelist: list[str] = []
-    bilichat_blacklist: list[str] = []
-    bilichat_cd_time: int = 120
-    bilichat_neterror_retry: int = 3
-    bilichat_show_error_msg: bool = True
-    bilichat_use_browser: bool = Field(default="Auto")
-    bilichat_browser_shot_quality: int = Field(default=75, ge=10, le=100)
-    bilichat_cache_serive: Literal["json", "mongodb"] = Field(default="Auto")
-    bilichat_text_fonts: str = "default"
-    bilichat_emoji_fonts: str = "default"
-    bilichat_webui_path: str | None = "bilichat"
-    bilichat_subs_limit: int = Field(5, ge=0, le=50)
-    bilichat_dynamic_interval: int = Field(90, ge=10)
-    bilichat_live_interval: int = Field(30, ge=10)
-    bilichat_push_delay: int = Field(3, ge=0)
-    bilichat_dynamic_method: Literal["rest", "grpc", "rss"] = "rest"
-    bilichat_rss_base: str = ""
-    bilichat_rss_key: str = ""
+    bilichat_block: bool = Field(default=False, title="阻塞其他的命令", json_schema_extra={"input_type": "boolean"})
+    bilichat_enable_self: bool = Field(default=False, title="处理自身消息", json_schema_extra={"input_type": "boolean"})
+    bilichat_only_self: bool = Field(default=False, title="仅处理自身消息", json_schema_extra={"input_type": "boolean"})
+    bilichat_only_to_me: bool = Field(default=False, title="仅处理@消息", json_schema_extra={"input_type": "boolean"})
+    bilichat_whitelist: list[str] = Field(default=[], title="白名单", json_schema_extra={"input_type": "stringArray"})
+    bilichat_blacklist: list[str] = Field(default=[], title="黑名单", json_schema_extra={"input_type": "stringArray"})
+    bilichat_cd_time: int = Field(default=120, title="冷却时间", json_schema_extra={"input_type": "number"})
+    bilichat_neterror_retry: int = Field(
+        default=3, title="网络错误重试次数", json_schema_extra={"input_type": "number"}
+    )
+    bilichat_show_error_msg: bool = Field(
+        default=True, title="显示错误消息", json_schema_extra={"input_type": "boolean"}
+    )
+    bilichat_use_browser: bool = Field(
+        default="Auto", title="使用浏览器渲染", json_schema_extra={"input_type": "boolean"}
+    )
+    bilichat_browser_shot_quality: int = Field(
+        default=75, ge=10, le=100, title="浏览器截图质量", json_schema_extra={"input_type": "number"}
+    )
+    bilichat_cache_serive: Literal["json", "mongodb"] = Field(
+        default="Auto", title="缓存服务", json_schema_extra={"input_type": "string"}
+    )
+    bilichat_text_fonts: str = Field(default="default", title="文本字体", json_schema_extra={"input_type": "string"})
+    bilichat_emoji_fonts: str = Field(default="default", title="表情字体", json_schema_extra={"input_type": "string"})
+    bilichat_webui_path: str | None = Field(
+        default="bilichat", title="WebUI 路径", json_schema_extra={"input_type": "string"}
+    )
+    bilichat_subs_limit: int = Field(
+        default=5, ge=0, le=50, title="订阅数量限制", json_schema_extra={"input_type": "number"}
+    )
+    bilichat_dynamic_interval: int = Field(
+        default=90, ge=10, title="动态间隔时间", json_schema_extra={"input_type": "number"}
+    )
+    bilichat_live_interval: int = Field(
+        default=30, ge=10, title="直播间隔时间", json_schema_extra={"input_type": "number"}
+    )
+    bilichat_push_delay: int = Field(default=3, ge=0, title="推送延迟时间", json_schema_extra={"input_type": "number"})
+    bilichat_dynamic_method: Literal["rest", "grpc", "rss"] = Field(
+        default="rest", title="动态获取方式", json_schema_extra={"input_type": "string"}
+    )
+    bilichat_rss_base: str = Field(default="", title="RSS 基础 URL", json_schema_extra={"input_type": "string"})
+    bilichat_rss_key: str = Field(default="", title="RSS 密钥", json_schema_extra={"input_type": "string"})
 
     # command and subscribe
-    bilichat_command_to_me: bool = True
-    bilichat_cmd_start: str = "bilichat"
-    bilichat_cmd_add_sub: list[str] = ["订阅", "关注"]
-    bilichat_cmd_remove_sub: list[str] = ["退订", "取关"]
-    bilichat_cmd_check_sub: list[str] = ["查看", "查看订阅"]
-    bilichat_cmd_reset_sub: list[str] = ["重置", "重置配置"]
-    bilichat_cmd_at_all: list[str] = ["全体成员", "at全体"]
-    bilichat_cmd_dynamic: list[str] = ["动态通知", "动态订阅"]
-    bilichat_cmd_live: list[str] = ["直播通知", "直播订阅"]
-    bilichat_cmd_checkdynamic: list[str] = ["查看动态"]
-    bilichat_cmd_fetch: list[str] = ["获取内容", "解析内容"]
-    bilichat_cmd_check_login: list[str] = ["查看登录账号"]
-    bilichat_cmd_login_qrcode: list[str] = ["扫码登录"]
-    bilichat_cmd_logout: list[str] = ["登出账号"]
-    bilichat_cmd_modify_cfg: list[str] = ["修改配置"]
+    bilichat_command_to_me: bool = Field(default=True, title="命令@我", json_schema_extra={"input_type": "boolean"})
+    bilichat_cmd_start: str = Field(default="bilichat", title="命令前缀", json_schema_extra={"input_type": "string"})
+    bilichat_cmd_add_sub: list[str] = Field(
+        default=["订阅", "关注"], title="添加订阅命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_remove_sub: list[str] = Field(
+        default=["退订", "取关"], title="删除订阅命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_check_sub: list[str] = Field(
+        default=["查看", "查看订阅"], title="查看订阅命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_reset_sub: list[str] = Field(
+        default=["重置", "重置配置"], title="重置订阅命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_at_all: list[str] = Field(
+        default=["全体成员", "at全体"], title="全体成员命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_dynamic: list[str] = Field(
+        default=["动态通知", "动态订阅"], title="动态通知命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_live: list[str] = Field(
+        default=["直播通知", "直播订阅"], title="直播通知命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_checkdynamic: list[str] = Field(
+        default=["查看动态"], title="查看动态命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_fetch: list[str] = Field(
+        default=["获取内容", "解析内容"], title="获取内容命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_check_login: list[str] = Field(
+        default=["查看登录账号"], title="查看登录账号命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_login_qrcode: list[str] = Field(
+        default=["扫码登录"], title="扫码登录命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_logout: list[str] = Field(
+        default=["登出账号"], title="登出账号命令", json_schema_extra={"input_type": "stringArray"}
+    )
+    bilichat_cmd_modify_cfg: list[str] = Field(
+        default=["修改配置"], title="修改配置命令", json_schema_extra={"input_type": "stringArray"}
+    )
 
     # basic info
-    bilichat_basic_info: bool = True
-    bilichat_basic_info_style: Literal["bbot_default", "style_blue"] = Field(default="Auto")
-    bilichat_basic_info_url: bool = True
-    bilichat_reply_to_basic_info: bool = True
+    bilichat_basic_info: bool = Field(default=True, title="基础信息", json_schema_extra={"input_type": "boolean"})
+    bilichat_basic_info_style: Literal["bbot_default", "style_blue"] = Field(
+        default="Auto", title="基础信息样式", json_schema_extra={"input_type": "string"}
+    )
+    bilichat_basic_info_url: bool = Field(
+        default=True, title="基础信息 URL", json_schema_extra={"input_type": "boolean"}
+    )
+    bilichat_reply_to_basic_info: bool = Field(
+        default=True, title="回复基础信息", json_schema_extra={"input_type": "boolean"}
+    )
 
     # dynamic
-    bilichat_dynamic: bool = True
-    bilichat_dynamic_style: Literal["dynamicrender", "browser_mobile", "browser_pc"] = Field(default="Auto")
-    bilichat_bilibili_cookie: str | None = None
+    bilichat_dynamic: bool = Field(default=True, title="动态", json_schema_extra={"input_type": "boolean"})
+    bilichat_dynamic_style: Literal["dynamicrender", "browser_mobile", "browser_pc"] = Field(
+        default="Auto", title="动态样式", json_schema_extra={"input_type": "string"}
+    )
+    bilichat_bilibili_cookie: str | None = Field(
+        default=None, title="Bilibili Cookie", json_schema_extra={"input_type": "string"}
+    )
 
     # both WC and AI
-    bilichat_use_bcut_asr: bool = True
+    bilichat_use_bcut_asr: bool = Field(
+        default=True, title="使用 BCUT ASR", json_schema_extra={"input_type": "boolean"}
+    )
 
     # Word Cloud
-    bilichat_word_cloud: bool = False
-    bilichat_word_cloud_size: list[int] = [1000, 800]
+    bilichat_word_cloud: bool = Field(default=False, title="词云", json_schema_extra={"input_type": "boolean"})
+    bilichat_word_cloud_size: list[int] = Field(
+        default=[1000, 800], title="词云大小", json_schema_extra={"input_type": "numberArray"}
+    )
 
     # AI Summary
-    bilichat_summary_ignore_null: bool = True
-    bilichat_official_summary: bool = False
-    bilichat_openai_token: str | None = None
-    bilichat_openai_proxy: str | None = None
-    bilichat_openai_model: Literal[
-        "gpt-3.5-turbo",
-        "gpt-3.5-turbo-0301",
-        "gpt-3.5-turbo-0613",
-        "gpt-3.5-turbo-16k",
-        "gpt-3.5-turbo-16k-0613",
-        "gpt-4",
-        "gpt-4-0314",
-        "gpt-4-0613",
-        "gpt-4-32k-0314",
-    ] = "gpt-3.5-turbo-0301"
-    bilichat_openai_token_limit: int = 3500
-    bilichat_openai_api_base: str = "https://api.openai.com"
+    bilichat_summary_ignore_null: bool = Field(
+        default=True, title="忽略空消息", json_schema_extra={"input_type": "boolean"}
+    )
+    bilichat_official_summary: bool = Field(
+        default=False, title="官方摘要", json_schema_extra={"input_type": "boolean"}
+    )
+    bilichat_openai_token: str | None = Field(
+        default=None, title="OpenAI Token", json_schema_extra={"input_type": "string"}
+    )
+    bilichat_openai_proxy: str | None = Field(
+        default=None, title="OpenAI Proxy", json_schema_extra={"input_type": "string"}
+    )
+    bilichat_openai_model: Literal["gpt-4o", "gpt-4o-mini"] = Field(
+        default="gpt-4o", title="OpenAI 模型", json_schema_extra={"input_type": "string"}
+    )
+    bilichat_openai_token_limit: int = Field(
+        default=3500, title="OpenAI Token 限制", json_schema_extra={"input_type": "number"}
+    )
+    bilichat_openai_api_base: str = Field(
+        default="https://api.openai.com", title="OpenAI API Base", json_schema_extra={"input_type": "string"}
+    )
 
     @validator("bilichat_cache_serive", always=True, pre=True)
     def check_cache_serive(cls, v):

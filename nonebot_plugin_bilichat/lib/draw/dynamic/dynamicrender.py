@@ -30,7 +30,7 @@ render = DynRender(
 async def skia_dynamic(raw: dict, raw_type: str, **kwargs):
     if dynamic_formate := await formate_message(raw_type, raw):
         img_bio = BytesIO()
-        image_array = await render.run(dynamic_formate) # type: ignore
+        image_array = await render.run(dynamic_formate)  # type: ignore
         img = skia.Image.fromarray(image_array, colorType=skia.ColorType.kRGBA_8888_ColorType)
         img.save(img_bio)
         return img_bio.getvalue()

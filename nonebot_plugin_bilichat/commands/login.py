@@ -72,12 +72,13 @@ async def bili_login_handle():
             [
                 (
                     f"账号uid: {auth.uid}\n"
-                    f"token有效期: {calc_time_total(auth.tokens_expired-int(time.time()))}\n"
-                    f"cookie有效期: {calc_time_total(auth.cookies_expired-int(time.time()))}"
+                    f"token有效期: {calc_time_total(auth.tokens_expired - int(time.time()))}\n"
+                    f"cookie有效期: {calc_time_total(auth.cookies_expired - int(time.time()))}"
                 )
                 for auth in AuthManager.grpc_auths
             ]
-        ) or "无已登录账号"
+        )
+        or "无已登录账号"
     )
 
 

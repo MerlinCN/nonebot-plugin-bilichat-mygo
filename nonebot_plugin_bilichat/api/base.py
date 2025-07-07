@@ -1,5 +1,5 @@
 import nonebot
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from nonebot.drivers import ReverseDriver
 from nonebot.drivers.fastapi import Driver as FastAPIDriver
