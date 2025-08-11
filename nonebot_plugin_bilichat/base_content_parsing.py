@@ -137,7 +137,7 @@ bilichat = on_message(
 @bilichat.handle()
 async def content_info(event: Event, origin_msg: UniMsg, state: T_State):
     content: Column | Video | Dynamic = state["_content_"]
-    reply = Reply(id=origin_msg.get_message_id())
+    reply = Reply(id=event.message_id)
     if plugin_config.bilichat_basic_info:
         content_image = await content.get_image(plugin_config.bilichat_basic_info_style)
 
