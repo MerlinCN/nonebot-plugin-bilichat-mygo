@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12, <4.0"
 
 [[package]]
@@ -888,7 +888,7 @@ wheels = [
 
 [[package]]
 name = "nonebot-plugin-bilichat-mygo"
-version = "6.0.0"
+version = "6.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "bilireq" },
@@ -937,7 +937,7 @@ wordcloud = [
 requires-dist = [
     { name = "bilireq", git = "https://github.com/SK-415/bilireq.git" },
     { name = "dynrender-skia-opt", specifier = ">=0.3.8" },
-    { name = "httpx", specifier = "==0.27.2" },
+    { name = "httpx", specifier = ">=0.27.2" },
     { name = "jieba", marker = "extra == 'all'", specifier = ">=0.42.1" },
     { name = "jieba", marker = "extra == 'wordcloud'", specifier = ">=0.42.1" },
     { name = "lxml", specifier = ">=4.9.2" },

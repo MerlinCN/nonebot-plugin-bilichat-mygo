@@ -15,7 +15,7 @@ dependencies = [
     "pillow>=9.5.0",
     "lxml>=4.9.2",
     "nonebot-plugin-localstore>=0.4.1",
-    "httpx==0.27.2",
+    "httpx>=0.27.2",
     "dynrender-skia-opt>=0.3.8",
     "nonebot-plugin-apscheduler>=0.3.0",
     "python-multipart>=0.0.6",
