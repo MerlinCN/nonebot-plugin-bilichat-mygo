@@ -1,7 +1,7 @@
 [project]
 name = "nonebot-plugin-bilichat-mygo"
 
-version = "6.0.2"
+version = "6.0.3"
 
 description = "多种B站链接解析，视频词云，AI总结，你想要的都在 bilichat"
 authors = [
@@ -15,7 +15,7 @@ dependencies = [
     "pillow>=9.5.0",
     "lxml>=4.9.2",
     "nonebot-plugin-localstore>=0.4.1",
-    "httpx>=0.27.2",
+    "httpx>=0.28.1",
     "dynrender-skia-opt>=0.3.8",
     "nonebot-plugin-apscheduler>=0.3.0",
     "python-multipart>=0.0.6",
