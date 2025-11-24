@@ -94,7 +94,7 @@ async def openai_req(
     if not token:
         return OpenAI(error=True, message="未配置 OpenAI API Token")
     async with httpx.AsyncClient(
-        proxies=plugin_config.bilichat_openai_proxy,
+        proxy=plugin_config.bilichat_openai_proxy,
         headers={
             "Authorization": f"Bearer {token}",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
