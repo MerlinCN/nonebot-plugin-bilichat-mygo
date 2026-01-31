@@ -887,7 +887,7 @@ wheels = [
 
 [[package]]
 name = "nonebot-plugin-bilichat-mygo"
-version = "6.0.5"
+version = "6.0.6"
 source = { editable = "." }
 dependencies = [
     { name = "bilireq" },
