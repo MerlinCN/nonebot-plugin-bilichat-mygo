@@ -108,6 +108,7 @@ class UserSubConfig(BaseModel):
     dynamic_at_all: bool = False
     live: bool = True
     live_at_all: bool = False
+    live_close: bool = False # 下播提醒
 
     def is_defualt_val(self) -> bool:
         """

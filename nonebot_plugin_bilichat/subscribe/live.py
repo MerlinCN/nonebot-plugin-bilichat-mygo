@@ -81,7 +81,7 @@ async def fetch_live(ups: Sequence[int]):
                     logger.info(f"{live_prompt}")
                     content = [live_prompt]
                     for user in up.subscribed_users:
-                        if user.subscriptions[up.uid].live:
+                        if user.subscriptions[up.uid].live and user.subscriptions[up.uid].live_close:
                             await user.push_to_user(content=content, at_all=False)  # type: ignore
             finally:
                 # 如果是 -1 则更新为 0
