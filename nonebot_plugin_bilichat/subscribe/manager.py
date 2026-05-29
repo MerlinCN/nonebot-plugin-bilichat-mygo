@@ -2,7 +2,7 @@ import asyncio
 import json
 import random
 import time
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Literal
 
 from apscheduler.job import Job
@@ -108,7 +108,16 @@ class UserSubConfig(BaseModel):
     dynamic_at_all: bool = False
     live: bool = True
     live_at_all: bool = False
-    live_close: bool = False # 下播提醒
+    live_close: bool = False  # 下播提醒
+    live_notified_date: str = Field(default="", description="最近一次直播开播通知日期")
+
+    def has_live_notified_today(self, today: date) -> bool:
+        """判断当前订阅今天是否已经发送过开播通知。"""
+        return self.live_notified_date == today.isoformat()
+
+    def mark_live_notified_today(self, today: date) -> None:
+        """记录当前订阅今天已经发送过开播通知。"""
+        self.live_notified_date = today.isoformat()
 
     def is_defualt_val(self) -> bool:
         """

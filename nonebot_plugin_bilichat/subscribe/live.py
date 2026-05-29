@@ -1,5 +1,5 @@
 import asyncio
-import time
+from datetime import date
 from json import JSONDecodeError
 from typing import Sequence
 
@@ -9,7 +9,6 @@ from httpx import ConnectError, TransportError
 from nonebot.log import logger
 
 from ..lib.bilibili_request import get_b23_url, hc
-from ..lib.tools import calc_time_total
 from ..model.bilibili.live import LiveRoom
 from ..model.exception import AbortError
 from ..optional import capture_exception
@@ -65,24 +64,23 @@ async def fetch_live(ups: Sequence[int]):
                             live_image = "\n"
                         logger.info(f"{live_prompt}")
                         content = [live_prompt, live_image, url]
+                        today = date.today()
+                        notified = False
                         for user in up.subscribed_users:
-                            if user.subscriptions[up.uid].live:
-                                await user.push_to_user(
-                                    content=content, at_all=user.subscriptions[up.uid].live_at_all or user.at_all
-                                )
+                            sub_config = user.subscriptions[up.uid]
+                            if sub_config.live and not sub_config.has_live_notified_today(today):
+                                await user.push_to_user(content=content, at_all=sub_config.live_at_all or user.at_all)
+                                sub_config.mark_live_notified_today(today)
+                                notified = True
+                        if notified:
+                            SubscriptionSystem.save_to_file()
                     # 如果记录值大于 0 则是正在直播，不进行开播推送
                     else:
                         up.living = room.live_time
-                # 未开播或轮播，且记录大于 0，则进行下播推送
+                # 未开播或轮播，且记录大于 0，则更新状态但不发送下播推送
                 elif up.living > 0:
-                    livetime = calc_time_total(time.time() - up.living)
                     up.living = 0
-                    live_prompt = f"UP {room.uname}({room.uid}) 已下播啦\n本次直播时长 {livetime}"
-                    logger.info(f"{live_prompt}")
-                    content = [live_prompt]
-                    for user in up.subscribed_users:
-                        if user.subscriptions[up.uid].live and user.subscriptions[up.uid].live_close:
-                            await user.push_to_user(content=content, at_all=False)  # type: ignore
+                    logger.info(f"UP {room.uname}({room.uid}) 已下播，已跳过下播通知")
             finally:
                 # 如果是 -1 则更新为 0
                 if up.living == -1:
