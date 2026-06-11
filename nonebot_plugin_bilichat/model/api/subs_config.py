@@ -25,11 +25,25 @@ class SubsConfig(BaseModel):
 
 
 class UserSubConfig(BaseModel):
-    uid: int
-    dynamic: bool = True
-    dynamic_at_all: bool = False
-    live: bool = True
-    live_at_all: bool = False
+    """用户单个 UP 主订阅配置。"""
+
+    uid: int = Field(..., title="UP 主 UID")
+    dynamic: bool = Field(True, title="动态推送")
+    dynamic_at_all: bool = Field(False, title="动态 @全体")
+    live: bool = Field(True, title="直播推送")
+    live_at_all: bool = Field(False, title="直播 @全体")
+    live_close: bool = Field(False, title="下播提醒")
+    live_notified_date: str = Field("", title="最近一次直播开播通知日期")
+
+
+class UpdateUserSubConfig(BaseModel):
+    """更新用户单个 UP 主订阅开关。"""
+
+    dynamic: bool = Field(..., title="动态推送")
+    dynamic_at_all: bool = Field(..., title="动态 @全体")
+    live: bool = Field(..., title="直播推送")
+    live_at_all: bool = Field(..., title="直播 @全体")
+    live_close: bool = Field(..., title="下播提醒")
 
 
 class User(BaseModel):
