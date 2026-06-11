@@ -57,13 +57,6 @@ nonebot_plugin_bilichat/
 └── subscribe/               # 订阅系统（manager + 定时任务）
 ```
 
-## WebUI API 约定
-
-- 订阅管理接口挂在 `/{bilichat_webui_path}/api/subs_config`
-- `GET /api/subs_config` 返回整份订阅配置，用于管理端初始化页面
-- `PUT /api/subs_config` 仍用于整份配置覆盖，前端局部编辑不要直接调用
-- `PATCH /api/subs_config/users/{platform}/{user_id}/subscriptions/{uid}` 只更新已有订阅的推送开关
-
 ## 代码风格指南
 
 ### 通用规则
