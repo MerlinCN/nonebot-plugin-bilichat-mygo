@@ -3,6 +3,7 @@ import json
 import random
 import time
 from datetime import date, datetime
+from re import fullmatch
 from typing import Any, Literal
 
 from apscheduler.job import Job
@@ -33,6 +34,9 @@ from ..lib.uid_extract import uid_extract, uid_extract_sync
 from ..optional import capture_exception
 
 CONFIG_LOCK = asyncio.Lock()
+
+MINUTES_PER_HOUR = 60
+SECONDS_PER_MINUTE = 60
 
 SUBSCRIBE_FILE = data_dir.joinpath("subscribe.json")
 SUBSCRIBE_FILE.touch(0o755, True)
@@ -102,6 +106,37 @@ class Uploader(BaseModel):
         logger.debug(f"已修正 UP {self.uid} 昵称 {old_nickname} => {self.nickname}")
 
 
+class QuietTimeRange(BaseModel):
+    """订阅项级静默时段。"""
+
+    start: str = Field(default="00:00", description="静默开始时间，格式 HH:mm")
+    end: str = Field(default="00:00", description="静默结束时间，格式 HH:mm")
+
+    @validator("start", "end")
+    def validate_time(cls, v: str) -> str:
+        """校验 HH:mm 时间字符串。"""
+        if not fullmatch(r"([01]\d|2[0-3]):[0-5]\d", v):
+            raise ValueError("静默时段必须使用 HH:mm 格式")
+        return v
+
+    @staticmethod
+    def _to_minutes(value: str) -> int:
+        """将 HH:mm 转换为当天分钟数。"""
+        hour, minute = value.split(":")
+        return int(hour) * MINUTES_PER_HOUR + int(minute)
+
+    def contains(self, current: datetime) -> bool:
+        """判断当前本地时间是否命中静默时段。"""
+        start = self._to_minutes(self.start)
+        end = self._to_minutes(self.end)
+        current_minutes = current.hour * MINUTES_PER_HOUR + current.minute
+        if start == end:
+            return True
+        if start < end:
+            return start <= current_minutes < end
+        return current_minutes >= start or current_minutes < end
+
+
 class UserSubConfig(BaseModel):
     uid: int
     dynamic: bool = True
@@ -111,6 +146,14 @@ class UserSubConfig(BaseModel):
     live_once_per_day: bool = True
     live_close: bool = False  # 下播提醒
     live_notified_date: str = Field(default="", description="最近一次直播开播通知日期")
+    quiet_time_ranges: list[QuietTimeRange] = Field(default_factory=list, description="订阅项级静默时段")
+    live_dedupe_minutes: int = Field(default=0, ge=0, description="开播通知去重分钟数，0 表示关闭")
+    live_last_push_at: int = Field(default=0, ge=0, description="最近一次成功开播推送时间戳")
+
+    def is_quiet_now(self, current: datetime | None = None) -> bool:
+        """判断当前本地时间是否命中任一静默时段。"""
+        now = current or datetime.now()
+        return any(time_range.contains(now) for time_range in self.quiet_time_ranges)
 
     def has_live_notified_today(self, today: date) -> bool:
         """判断当前订阅今天是否已经发送过开播通知。"""
@@ -120,31 +163,37 @@ class UserSubConfig(BaseModel):
         """记录当前订阅今天已经发送过开播通知。"""
         self.live_notified_date = today.isoformat()
 
-    def is_defualt_val(self) -> bool:
+    def is_live_deduped(self, current_timestamp: int) -> bool:
+        """判断当前开播推送是否处于分钟级去重窗口。"""
+        if self.live_dedupe_minutes <= 0 or self.live_last_push_at <= 0:
+            return False
+        return current_timestamp - self.live_last_push_at < self.live_dedupe_minutes * SECONDS_PER_MINUTE
+
+    def mark_live_pushed(self, today: date, current_timestamp: int) -> None:
+        """记录当前订阅开播通知已经成功发送。"""
+        self.mark_live_notified_today(today)
+        self.live_last_push_at = current_timestamp
+
+    def is_default_val(self) -> bool:
         """
         Checks if all the attributes of the object have their default values.
 
         Returns:
             bool: True if all attributes have their default values, False otherwise.
         """
-        if PYDANTIC_V2:
-            return not any(
-                (
-                    self.__getattribute__(field_name) != self.model_fields[field_name].default  # type: ignore
-                    if field_name != "uid"
-                    else False
-                )
-                for field_name in self.model_fields  # type: ignore
-            )
-        else:
-            return not any(
-                (
-                    self.__getattribute__(field_name) != self.__fields__[field_name].default  # type: ignore
-                    if field_name != "uid"
-                    else False
-                )
-                for field_name in self.__fields__  # type: ignore
-            )
+        default_config = type(self)(uid=self.uid)
+        return (
+            self.dynamic == default_config.dynamic
+            and self.dynamic_at_all == default_config.dynamic_at_all
+            and self.live == default_config.live
+            and self.live_at_all == default_config.live_at_all
+            and self.live_once_per_day == default_config.live_once_per_day
+            and self.live_close == default_config.live_close
+            and self.live_notified_date == default_config.live_notified_date
+            and self.quiet_time_ranges == default_config.quiet_time_ranges
+            and self.live_dedupe_minutes == default_config.live_dedupe_minutes
+            and self.live_last_push_at == default_config.live_last_push_at
+        )
 
 
 class User(BaseModel):
@@ -233,7 +282,8 @@ class User(BaseModel):
     def _id(self) -> str:
         return f"{self.platform}-_-{self.user_id}"
 
-    async def push_to_user(self, content: list[str | bytes], at_all: bool | None = None):
+    async def push_to_user(self, content: list[str | bytes], at_all: bool | None = None) -> bool:
+        """向当前推送目标发送消息，返回是否发送成功。"""
         if not at_all:
             at = ""
         elif self.platform == SupportedPlatform.qq_group:
@@ -249,7 +299,7 @@ class User(BaseModel):
             bots = get_bots(target=self.create_saa_target())
         except NoBotFoundError:
             logger.warning(f"用户 {self.user_id} 无可用的推送Bot")
-            return
+            return False
         random.shuffle(bots)
         logger.info(f"向 {self.user_id} 推送消息，可用的bots： {bots}")
         for bot in bots:
@@ -257,13 +307,14 @@ class User(BaseModel):
             try:
                 await msg.send(bot=bot, target=self.create_alc_target())
                 logger.debug(f"推送成功 -> {bot}")
-                return
+                return True
             except Exception as e:
                 capture_exception(e)
                 logger.exception(f"推送失败 -> {bot}")
         logger.error(f"无法为用户 {self.user_id} 推送消息")
 
         await asyncio.sleep(SubscriptionSystem.config.push_delay)
+        return False
 
     def add_subscription(self, uploader: Uploader) -> str | None:
         """Add a subscription for a user to an uploader."""

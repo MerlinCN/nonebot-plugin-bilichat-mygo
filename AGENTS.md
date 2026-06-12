@@ -61,6 +61,10 @@ nonebot_plugin_bilichat/
 
 - 单个订阅项的 `UserSubConfig.live_once_per_day` 控制该推送目标是否对对应 UP 每天只发送一次开播通知。
 - 单个订阅项的 `UserSubConfig.live_close` 控制该推送目标是否接收对应 UP 的下播通知。
+- 单个订阅项的 `UserSubConfig.quiet_time_ranges` 控制该推送目标订阅该 UP 的多段静默时段，时间字符串格式为 `HH:mm`；支持跨天，`start == end` 视为全天静默。
+- 单个订阅项的 `UserSubConfig.live_dedupe_minutes` 控制开播通知分钟级去重，默认 `0` 表示关闭；成功推送开播后写入 `live_last_push_at`。
+- 静默时段作用于动态、开播、下播三类推送，命中后直接丢弃本次推送，不做延迟补发。
+- 推送判断优先级：对应推送开关关闭则不推送 → 命中订阅项静默时段则不推送 → 开播再判断每天推送一次 → 开播再判断分钟级去重 → 实际推送成功后更新对应记录字段。
 
 ## 代码风格指南
 

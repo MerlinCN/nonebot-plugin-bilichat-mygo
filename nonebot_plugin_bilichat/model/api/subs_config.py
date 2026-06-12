@@ -24,6 +24,13 @@ class SubsConfig(BaseModel):
     rss_key: str = ""
 
 
+class QuietTimeRange(BaseModel):
+    """订阅项级静默时段。"""
+
+    start: str = Field("00:00", description="静默开始时间，格式 HH:mm")
+    end: str = Field("00:00", description="静默结束时间，格式 HH:mm")
+
+
 class UserSubConfig(BaseModel):
     uid: int
     dynamic: bool = True
@@ -33,6 +40,9 @@ class UserSubConfig(BaseModel):
     live_once_per_day: bool = Field(True)
     live_close: bool = Field(False)
     live_notified_date: str = Field("")
+    quiet_time_ranges: list[QuietTimeRange] = Field(default_factory=list)
+    live_dedupe_minutes: int = Field(0, ge=0)
+    live_last_push_at: int = Field(0, ge=0)
 
 
 class User(BaseModel):

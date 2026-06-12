@@ -1,4 +1,5 @@
 import asyncio
+import time
 from datetime import date
 from json import JSONDecodeError
 from typing import Sequence
@@ -15,24 +16,31 @@ from ..optional import capture_exception
 from .manager import CONFIG_LOCK, SubscriptionSystem, Uploader, UserSubConfig
 
 
-def should_push_live_start(sub_config: UserSubConfig, today: date) -> bool:
+def should_push_live_start(sub_config: UserSubConfig, today: date, current_timestamp: int) -> bool:
     """判断当前订阅是否应该发送开播通知。"""
     if not sub_config.live:
         return False
+    if sub_config.is_quiet_now():
+        return False
     if not sub_config.live_once_per_day:
-        return True
-    return not sub_config.has_live_notified_today(today)
+        return not sub_config.is_live_deduped(current_timestamp)
+    if sub_config.has_live_notified_today(today):
+        return False
+    return not sub_config.is_live_deduped(current_timestamp)
 
 
 async def push_live_start(up: Uploader, content: list[str | bytes]) -> None:
     """向订阅用户推送开播通知。"""
     today = date.today()
+    current_timestamp = int(time.time())
     notified = False
     for user in up.subscribed_users:
         sub_config = user.subscriptions[up.uid]
-        if should_push_live_start(sub_config, today):
-            await user.push_to_user(content=content, at_all=sub_config.live_at_all or user.at_all)
-            sub_config.mark_live_notified_today(today)
+        if should_push_live_start(sub_config, today, current_timestamp):
+            pushed = await user.push_to_user(content=content, at_all=sub_config.live_at_all or user.at_all)
+            if not pushed:
+                continue
+            sub_config.mark_live_pushed(today, current_timestamp)
             notified = True
     if notified:
         SubscriptionSystem.save_to_file()
@@ -46,7 +54,7 @@ async def push_live_close(up: Uploader, room: LiveRoom) -> None:
     notified = False
     for user in up.subscribed_users:
         sub_config = user.subscriptions[up.uid]
-        if sub_config.live_close:
+        if sub_config.live_close and not sub_config.is_quiet_now():
             await user.push_to_user(content=content, at_all=sub_config.live_at_all or user.at_all)
             notified = True
     if not notified:

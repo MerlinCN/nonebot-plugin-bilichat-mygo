@@ -21,7 +21,7 @@ from ..optional import capture_exception
 from .manager import SubscriptionSystem, Uploader
 
 
-async def _handle_dynamic(up: Uploader, dyn: Dynamic):
+async def _handle_dynamic(up: Uploader, dyn: Dynamic) -> None:
     up.dyn_offset = max(up.dyn_offset, int(dyn.id))
 
     if dyn.raw_type == "web":
@@ -62,9 +62,10 @@ async def _handle_dynamic(up: Uploader, dyn: Dynamic):
 
     content = [type_text, dyn_image, dyn.url]
     for user in up.subscribed_users:
-        if user.subscriptions[up.uid].dynamic:
+        sub_config = user.subscriptions[up.uid]
+        if sub_config.dynamic and not sub_config.is_quiet_now():
             BilichatCD.record_cd(session_id=user.user_id, content_id=dyn.id)
-            await user.push_to_user(content=content, at_all=user.subscriptions[up.uid].dynamic_at_all or user.at_all)
+            await user.push_to_user(content=content, at_all=sub_config.dynamic_at_all or user.at_all)
 
 
 async def fetch_dynamics_rest(up: Uploader):

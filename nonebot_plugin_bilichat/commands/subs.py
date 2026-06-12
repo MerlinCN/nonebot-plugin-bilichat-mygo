@@ -62,7 +62,7 @@ async def check_sub(
             for index, up in enumerate(ups):
                 text = f"{index + 1}."
                 cfg = user.subscriptions.get(up.uid, UserSubConfig(uid=up.uid))
-                if not cfg.is_defualt_val():
+                if not cfg.is_default_val():
                     text += "⚙️"
                 text += f" {str(up)}"
                 ups_prompt.append(text)
