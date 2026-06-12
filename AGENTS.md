@@ -57,6 +57,11 @@ nonebot_plugin_bilichat/
 └── subscribe/               # 订阅系统（manager + 定时任务）
 ```
 
+## 订阅直播配置约定
+
+- 单个订阅项的 `UserSubConfig.live_once_per_day` 控制该推送目标是否对对应 UP 每天只发送一次开播通知。
+- 单个订阅项的 `UserSubConfig.live_close` 控制该推送目标是否接收对应 UP 的下播通知。
+
 ## 代码风格指南
 
 ### 通用规则

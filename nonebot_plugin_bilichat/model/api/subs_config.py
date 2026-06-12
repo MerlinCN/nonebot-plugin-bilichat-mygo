@@ -30,6 +30,9 @@ class UserSubConfig(BaseModel):
     dynamic_at_all: bool = False
     live: bool = True
     live_at_all: bool = False
+    live_once_per_day: bool = Field(True)
+    live_close: bool = Field(False)
+    live_notified_date: str = Field("")
 
 
 class User(BaseModel):

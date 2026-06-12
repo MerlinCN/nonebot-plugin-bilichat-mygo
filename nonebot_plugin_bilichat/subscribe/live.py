@@ -12,7 +12,45 @@ from ..lib.bilibili_request import get_b23_url, hc
 from ..model.bilibili.live import LiveRoom
 from ..model.exception import AbortError
 from ..optional import capture_exception
-from .manager import CONFIG_LOCK, SubscriptionSystem
+from .manager import CONFIG_LOCK, SubscriptionSystem, Uploader, UserSubConfig
+
+
+def should_push_live_start(sub_config: UserSubConfig, today: date) -> bool:
+    """判断当前订阅是否应该发送开播通知。"""
+    if not sub_config.live:
+        return False
+    if not sub_config.live_once_per_day:
+        return True
+    return not sub_config.has_live_notified_today(today)
+
+
+async def push_live_start(up: Uploader, content: list[str | bytes]) -> None:
+    """向订阅用户推送开播通知。"""
+    today = date.today()
+    notified = False
+    for user in up.subscribed_users:
+        sub_config = user.subscriptions[up.uid]
+        if should_push_live_start(sub_config, today):
+            await user.push_to_user(content=content, at_all=sub_config.live_at_all or user.at_all)
+            sub_config.mark_live_notified_today(today)
+            notified = True
+    if notified:
+        SubscriptionSystem.save_to_file()
+
+
+async def push_live_close(up: Uploader, room: LiveRoom) -> None:
+    """按配置向订阅用户推送下播通知。"""
+    live_prompt = f"UP {room.uname}({room.uid}) 已下播"
+    url = await get_b23_url(f"https://live.bilibili.com/{room.room_id}")
+    content = [live_prompt, url]
+    notified = False
+    for user in up.subscribed_users:
+        sub_config = user.subscriptions[up.uid]
+        if sub_config.live_close:
+            await user.push_to_user(content=content, at_all=sub_config.live_at_all or user.at_all)
+            notified = True
+    if not notified:
+        logger.info(f"UP {room.uname}({room.uid}) 已下播，所有订阅配置均未开启下播通知")
 
 
 async def fetch_live(ups: Sequence[int]):
@@ -64,23 +102,14 @@ async def fetch_live(ups: Sequence[int]):
                             live_image = "\n"
                         logger.info(f"{live_prompt}")
                         content = [live_prompt, live_image, url]
-                        today = date.today()
-                        notified = False
-                        for user in up.subscribed_users:
-                            sub_config = user.subscriptions[up.uid]
-                            if sub_config.live and not sub_config.has_live_notified_today(today):
-                                await user.push_to_user(content=content, at_all=sub_config.live_at_all or user.at_all)
-                                sub_config.mark_live_notified_today(today)
-                                notified = True
-                        if notified:
-                            SubscriptionSystem.save_to_file()
+                        await push_live_start(up=up, content=content)
                     # 如果记录值大于 0 则是正在直播，不进行开播推送
                     else:
                         up.living = room.live_time
-                # 未开播或轮播，且记录大于 0，则更新状态但不发送下播推送
+                # 未开播或轮播，且记录大于 0，则更新状态并按配置发送下播推送
                 elif up.living > 0:
                     up.living = 0
-                    logger.info(f"UP {room.uname}({room.uid}) 已下播，已跳过下播通知")
+                    await push_live_close(up=up, room=room)
             finally:
                 # 如果是 -1 则更新为 0
                 if up.living == -1:

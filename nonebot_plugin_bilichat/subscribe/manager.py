@@ -108,6 +108,7 @@ class UserSubConfig(BaseModel):
     dynamic_at_all: bool = False
     live: bool = True
     live_at_all: bool = False
+    live_once_per_day: bool = True
     live_close: bool = False  # 下播提醒
     live_notified_date: str = Field(default="", description="最近一次直播开播通知日期")
 
