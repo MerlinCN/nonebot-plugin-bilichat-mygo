@@ -1,4 +1,5 @@
 import asyncio
+import time
 from datetime import date
 from json import JSONDecodeError
 from typing import Sequence
@@ -15,7 +16,14 @@ from ..optional import capture_exception
 from .manager import CONFIG_LOCK, SubscriptionSystem
 
 
-async def fetch_live(ups: Sequence[int]):
+def _is_reopen_within_grace(closed_at: int, now: int) -> bool:
+    """判断直播间是否在配置的免通知时间内重新开播。"""
+    grace_period = SubscriptionSystem.config.live_reopen_grace_period
+    return grace_period > 0 and closed_at > 0 and now - closed_at <= grace_period
+
+
+async def fetch_live(ups: Sequence[int]) -> None:
+    """获取直播间状态并发送开播通知。"""
     try:
         status_infos = await get_rooms_info_by_uids(list(ups))
     except (TransportError, ConnectError, JSONDecodeError, ResponseCodeError) as e:
@@ -43,15 +51,28 @@ async def fetch_live(ups: Sequence[int]):
             await asyncio.sleep(0)
         async with CONFIG_LOCK:
             try:
+                now = int(time.time())
                 logger.debug(f"[Live] {up.nickname}({up.uid}) 直播状态: {room.live_status}")
                 # 已开播
                 if room.live_status == 1:
                     # 如果是 -1 则为第一次刷取，跳过后续推送部分
                     if up.living == -1:
                         up.living = room.live_time
+                        up.live_closed_at = 0
                     # 如果记录值为 0 则是刚开播，开始开播推送
                     elif up.living == 0:
+                        if _is_reopen_within_grace(up.live_closed_at, now):
+                            reopened_after = now - up.live_closed_at
+                            up.living = room.live_time
+                            up.live_closed_at = 0
+                            logger.info(
+                                f"UP {room.uname}({room.uid}) 在 {reopened_after} 秒内再开播，"
+                                "视为同一场直播，已跳过开播通知"
+                            )
+                            continue
+
                         up.living = room.live_time
+                        up.live_closed_at = 0
                         live_prompt = (
                             f"UP {room.uname}({room.uid})"
                             f"在 {room.area_v2_name} / {room.area_name} 区开播啦 \n"
@@ -77,9 +98,11 @@ async def fetch_live(ups: Sequence[int]):
                     # 如果记录值大于 0 则是正在直播，不进行开播推送
                     else:
                         up.living = room.live_time
+                        up.live_closed_at = 0
                 # 未开播或轮播，且记录大于 0，则更新状态但不发送下播推送
                 elif up.living > 0:
                     up.living = 0
+                    up.live_closed_at = now
                     logger.info(f"UP {room.uname}({room.uid}) 已下播，已跳过下播通知")
             finally:
                 # 如果是 -1 则更新为 0

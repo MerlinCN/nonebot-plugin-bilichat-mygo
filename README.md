@@ -178,6 +178,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 |      bilichat_subs_limit      |    int    |    5     |                       默认全局订阅数量限制                       |
 |   bilichat_dynamic_interval   |    int    |    90    |                    默认动态轮询间隔，单位为秒                    |
 |    bilichat_live_interval     |    int    |    30    |                    默认直播轮询间隔，单位为秒                    |
+| bilichat_live_reopen_grace_period | int | 1800 | 默认直播短时间再开播免通知时间，单位为秒，0 表示禁用 |
 |      bilichat_push_delay      |    int    |    3     |                   默认每条推送的延迟，单位为秒                   |
 |    bilichat_dynamic_method    |    str    |  "rest"  |        默认动态推送方式，可选项为"grpc"、"rest" 和 "rss"         |
 |       bilichat_rss_base       |    str    |   None   | 默认兼容 RSSHub 的动态 RSS 订阅地址，例如 `https://rsshub.app/`  |
@@ -192,7 +193,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 5. 当 `bilichat_cache_serive` 为 `mongodb` 时，需要安装并配置 [nonebot-plugin-mongodb](https://github.com/Well2333/nonebot-plugin-mongodb) 才可正常使用
 6. `bilichat_rss_base` 所需地址需要兼容 [RSSHub](https://docs.rsshub.app/zh/routes/social-media#up-%E4%B8%BB%E5%8A%A8%E6%80%81) 中的文件结构及路由即可使用
 7. `bilichat_rss_key` 为可选项，用于 RSSHub 的访问控制，若无需控制则留空，详情可查看 RSSHub 的[文档](https://docs.rsshub.app/zh/guide/#%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
-8. `bilichat_subs_limit bilichat_dynamic_interval bilichat_live_interval bilichat_push_delay bilichat_dynamic_method bilichat_rss_base bilichat_rss_key` 为全局默认值，如果在配置文件中有所配置，则会覆盖这里的默认值
+8. `bilichat_subs_limit bilichat_dynamic_interval bilichat_live_interval bilichat_live_reopen_grace_period bilichat_push_delay bilichat_dynamic_method bilichat_rss_base bilichat_rss_key` 为全局默认值，如果在配置文件中有所配置，则会覆盖这里的默认值
 
 ### 指令配置项
 

@@ -48,9 +48,10 @@ class Uploader(BaseModel):
     nickname: str
     uid: int
     living: int = -1
+    live_closed_at: int = Field(default=0, description="最近一次检测到下播的时间戳")
     dyn_offset: int = 0
 
-    def __init__(self, **values):
+    def __init__(self, **values: Any) -> None:
         super().__init__(**values)
         # 没有昵称的则搜索昵称
         logger.debug(f"初始化 UP: {self.nickname}({self.uid})")
@@ -77,6 +78,7 @@ class Uploader(BaseModel):
     def dict(self, **kwargs) -> dict[str, Any]:
         exclude_properties = {name for name, value in type(self).__dict__.items() if isinstance(value, property)}
         exclude_properties.add("living")
+        exclude_properties.add("live_closed_at")
         exclude_properties.add("dyn_offset")
         if PYDANTIC_V2:
             dict_ = super().model_dump(**{**kwargs, "exclude": exclude_properties})  # type: ignore
@@ -303,8 +305,9 @@ class SubscriptionConfig(BaseModel):
     subs_limit: int = Field(plugin_config.bilichat_subs_limit, ge=0, le=50)
     dynamic_interval: int = Field(plugin_config.bilichat_dynamic_interval, ge=10)
     live_interval: int = Field(plugin_config.bilichat_live_interval, ge=10)
+    live_reopen_grace_period: int = Field(plugin_config.bilichat_live_reopen_grace_period, ge=0)
     push_delay: int = Field(plugin_config.bilichat_push_delay, ge=0)
-    dynamic_method: Literal["rest", "grpc", "rss"] = plugin_config.bilichat_dynamic_method
+    dynamic_method: Literal["rest", "grpc", "rss"] = Field(plugin_config.bilichat_dynamic_method)
     rss_base: str = Field(plugin_config.bilichat_rss_base)
     rss_key: str = Field(plugin_config.bilichat_rss_key)
 

@@ -5,6 +5,7 @@ SUBS_CONFIG_NAME_MAPPING = {
     "subs_limit": "全局订阅数量限制",
     "dynamic_interval": "动态轮询间隔",
     "live_interval": "直播轮询间隔",
+    "live_reopen_grace_period": "直播短时间再开播免通知时间",
     "push_delay": "每条推送的延迟",
     "dynamic_method": "动态推送方式",
     "rss_base": "动态RSS源",
@@ -18,10 +19,11 @@ class SubsConfig(BaseModel):
     subs_limit: int = Field(5, ge=0, le=50)
     dynamic_interval: int = Field(90, ge=10)
     live_interval: int = Field(30, ge=10)
+    live_reopen_grace_period: int = Field(1800, ge=0)
     push_delay: int = Field(3, ge=0)
-    dynamic_method: str = "rest"
-    rss_base: str = ""
-    rss_key: str = ""
+    dynamic_method: str = Field("rest")
+    rss_base: str = Field("")
+    rss_key: str = Field("")
 
 
 class UserSubConfig(BaseModel):

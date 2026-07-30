@@ -54,6 +54,9 @@ class Config(BaseModel):
     bilichat_live_interval: int = Field(
         default=30, ge=10, title="直播间隔时间", json_schema_extra={"input_type": "number"}
     )
+    bilichat_live_reopen_grace_period: int = Field(
+        default=1800, ge=0, title="直播短时间再开播免通知时间", json_schema_extra={"input_type": "number"}
+    )
     bilichat_push_delay: int = Field(default=3, ge=0, title="推送延迟时间", json_schema_extra={"input_type": "number"})
     bilichat_dynamic_method: Literal["rest", "grpc", "rss"] = Field(
         default="rest", title="动态获取方式", json_schema_extra={"input_type": "string"}
