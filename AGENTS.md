@@ -186,6 +186,7 @@ except ImportError:
 | nonebot-plugin-alconna | 跨平台消息构建 |
 | nonebot-plugin-apscheduler | 定时任务（订阅轮询） |
 | nonebot-plugin-localstore | 本地文件存储路径管理 |
+| nonebot-plugin-htmlrender[playwright] | HTMLRender 0.8+ Playwright Provider 与页面租约 |
 | bilireq | B 站 gRPC/REST API 封装 |
 | httpx | 异步 HTTP 客户端 |
 | pillow | 图片处理 |

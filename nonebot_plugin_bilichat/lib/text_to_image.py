@@ -2,6 +2,7 @@ import re
 from io import BytesIO
 from pathlib import Path
 
+import jinja2
 import skia
 from dynamicadaptor.Content import RichTextDetail, Text
 from dynrender_skia.DynConfig import SetDynStyle
@@ -10,6 +11,7 @@ from nonebot.log import logger
 
 from ..config import plugin_config
 from ..model.exception import ProssesError
+from .browser import get_new_page, pw_font_injecter
 from .fonts_provider import get_font_sync
 from .store import cache_dir
 
@@ -38,7 +40,8 @@ cache.mkdir(0o755, parents=True, exist_ok=True)
 cache = str(cache.absolute())
 
 
-async def rich_text2image(data: str, src: str):
+async def rich_text2image(data: str, src: str) -> bytes:
+    """使用 Skia 将摘要文本渲染为图片。"""
     data = (
         f"AI Summarization, Powered by A60 & Well404 \nNLP Model: {src}\n====================================\n{data}"
     )
@@ -55,12 +58,8 @@ async def rich_text2image(data: str, src: str):
     return bio.getvalue()
 
 
-async def pw_text2image(data: str, src: str):
-    import jinja2
-    from nonebot_plugin_htmlrender import get_new_page
-
-    from ..lib.browser import pw_font_injecter
-
+async def pw_text2image(data: str, src: str) -> bytes:
+    """使用 Playwright 将摘要模板渲染为图片。"""
     if src == plugin_config.bilichat_openai_model:
         src = "openai"
     else:
@@ -94,6 +93,7 @@ async def pw_text2image(data: str, src: str):
 
 
 async def t2i(data: str, src: str) -> bytes:
+    """按当前配置选择渲染器生成摘要图片。"""
     try:
         if plugin_config.bilichat_use_browser:
             return await pw_text2image(data, src)

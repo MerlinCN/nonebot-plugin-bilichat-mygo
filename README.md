@@ -139,8 +139,10 @@ _✨ 多功能的 B 站视频解析工具 ✨_
 bilichat_cd_time = 120
 # 网络请求重试次数
 bilichat_neterror_retry = 3
-# 是否使用浏览器截图(需要额外依赖)
+# 是否使用浏览器截图（需要配置 HTMLRender Playwright Provider）
 bilichat_use_browser = True
+# HTMLRender 0.8+ Provider 配置
+render = '{"provider":"playwright","startup":"probe","provider_config":{"engine":"chromium"}}'
 
 # 是否开启词云(需要额外依赖)
 bilichat_word_cloud = True
@@ -152,6 +154,16 @@ bilichat_official_summary = True
 bilichat_openai_token = sk-xxxxxxx
 # 网络代理
 bilichat_openai_proxy = "http://127.0.0.1:7890/"
+```
+
+HTMLRender 0.8+ 必须选择 Playwright Provider。上面的 `.env` 使用 JSON 配置；如果项目通过 YAML 管理配置，等价写法为：
+
+```yaml
+render:
+  provider: playwright
+  startup: probe
+  provider_config:
+    engine: chromium
 ```
 
 ### 通用配置项
@@ -169,7 +181,7 @@ bilichat_openai_proxy = "http://127.0.0.1:7890/"
 |    bilichat_neterror_retry    |    int    |    3     |                   对部分网络请求错误的尝试次数                   |
 |     bilichat_use_bcut_asr     |   bool    |   True   |             是否在**没有字幕时**调用必剪接口生成字幕             |
 |    bilichat_show_error_msg    |   bool    |   True   |                   是否在解析失败时发送错误信息                   |
-|     bilichat_use_browser      |   bool    |   Auto   |     是否使用浏览器，`Auto` 会根据是否含有相应的依赖进行选择      |
+|     bilichat_use_browser      |   bool    |   Auto   | `Auto` 会在 HTMLRender Playwright Provider 可用时启用浏览器渲染 |
 | bilichat_browser_shot_quality |    int    |    75    |      浏览器截图质量，取值范围 10-100，越高则截图的体积越大       |
 |     bilichat_cache_serive     |    str    |   Auto   |         使用的缓存类型，可用类型包含 `json` 和 `mongodb`         |
 |      bilichat_text_fonts      |    str    | default  |          可供自定义的字体，仅作用于 dynamicrender 绘图           |

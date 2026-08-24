@@ -182,21 +182,26 @@ class Config(BaseModel):
             ) from e
 
     @validator("bilichat_use_browser", always=True, pre=True)
-    def check_htmlrender(cls, v):
-        if not v:
-            return v
+    def check_htmlrender(cls, value: bool | str) -> bool:
+        """根据 HTMLRender Playwright Provider 可用性选择浏览器渲染。"""
+        if not value:
+            return False
+
+        htmlrender = require("nonebot_plugin_htmlrender")
         try:
-            require("nonebot_plugin_htmlrender")
-            if v == "Auto":
-                logger.info("bilichat_use_browser 所需依赖已安装，采用浏览器渲染模式")
-            return True
-        except Exception as e:
-            if v == "Auto":
-                logger.info("bilichat_use_browser 所需依赖未安装，采用绘图渲染模式")
+            htmlrender.get_default_application().extensions.playwright
+        except htmlrender.RenderingError as error:
+            if value == "Auto":
+                logger.info("HTMLRender Playwright Provider 不可用，采用绘图渲染模式")
                 return False
             raise RuntimeError(
-                "浏览器渲染依赖未安装, 请选择其他渲染模式或使用 **pip install nonebot-plugin-bilichat[all]** 来安装所需依赖"
-            ) from e
+                "浏览器渲染需要 HTMLRender Playwright Provider，请配置 "
+                "render.provider=playwright 并安装 nonebot-plugin-htmlrender[playwright]"
+            ) from error
+
+        if value == "Auto":
+            logger.info("HTMLRender Playwright Provider 可用，采用浏览器渲染模式")
+        return True
 
     @validator("bilichat_basic_info_style", always=True, pre=True)
     def check_use_browser_basic(cls, v, values):

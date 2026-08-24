@@ -3,12 +3,11 @@ import re
 from io import BytesIO
 
 import jinja2
-from nonebot_plugin_htmlrender.browser import get_new_page
 from qrcode.image.pil import PilImage
 from qrcode.main import QRCode
 
 from ....config import plugin_config
-from ...browser import pw_font_injecter
+from ...browser import get_new_page, pw_font_injecter
 from ...store import static_dir
 from . import VideoImage
 
@@ -16,7 +15,8 @@ style_bule = static_dir.joinpath("style_blue")
 
 
 @VideoImage.register_method("style_blue")
-async def style_blue(video_info: VideoImage):
+async def style_blue(video_info: VideoImage) -> bytes:
+    """使用蓝色详情模板渲染视频信息图片。"""
     video_time = (
         f"{video_info.hours:02d}:{video_info.minutes:02d}:{video_info.seconds:02d}"
         if video_info.hours

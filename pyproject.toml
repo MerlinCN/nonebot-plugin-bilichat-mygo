@@ -25,7 +25,7 @@ dependencies = [
     "pypng>=0.20220715.0",
     "nonebot2[fastapi,websockets]>=2.4.2",
     "nonebot-adapter-onebot>=2.4.6",
-    "nonebot-plugin-htmlrender>=0.6.6",
+    "nonebot-plugin-htmlrender[playwright]>=0.8.1",
 ]
 requires-python = ">=3.12,<4.0"
 readme = "README.md"
@@ -34,7 +34,6 @@ license = { text = "AGPL3.0" }
 extra = [
     "numpy>=1.25.1",
     "nonebot-plugin-sentry>=0.2.2",
-    "nonebot-plugin-htmlrender>=0.2.0.3",
     "nonebot-plugin-mongodb>=0.1.0",
 ]
 wordcloud = ["jieba>=0.42.1", "wordcloud>=1.8.2.2"]
@@ -43,7 +42,6 @@ all = [
     "numpy>=1.25.1",
     "jieba>=0.42.1",
     "wordcloud>=1.8.2.2",
-    "nonebot-plugin-htmlrender>=0.2.0.3",
     "nonebot-plugin-mongodb>=0.1.0",
     "nonebot-plugin-sentry>=0.4.1",
     "tiktoken>=0.6.0",
